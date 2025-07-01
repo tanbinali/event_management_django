@@ -1,0 +1,31 @@
+{% extends 'events/base.html' %}
+
+{% block content %}
+
+{% if form %}
+<h2>Participant Form</h2>
+<form method="post" style="margin-bottom: 1.5rem;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" style="background-color: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem;">Save</button>
+</form>
+{% endif %}
+
+<h2>Edit Participants</h2>
+<div style="display: flex; flex-direction: column; gap: 1rem;">
+    {% for participant in participants %}
+    <div style="display: flex; justify-content: space-between; align-items: center; border: 1px solid #ddd; padding: 1rem; border-radius: 0.375rem;">
+        <div>
+            <strong>Name:</strong> {{ participant.name }}<br>
+            <strong>Email:</strong> {{ participant.email }}
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; text-align: right;">
+            <a href="{% url 'participant_update' participant.pk %}" style="color: #2563eb; text-decoration: none;">✏️ Edit</a>
+            <a href="{% url 'participant_delete' participant.pk %}" style="color: #dc2626; text-decoration: none;">🗑️ Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}

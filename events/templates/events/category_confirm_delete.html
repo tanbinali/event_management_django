@@ -1,0 +1,12 @@
+{% extends 'events/base.html' %}
+
+{% block content %}
+  <h2 class="text-lg font-semibold mb-4">Delete Category</h2>
+  <p>Are you sure you want to delete "{{ category.name }}"?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Delete</button>
+    <a href="{% url 'category_manage' %}" class="ml-4 text-blue-600">Cancel</a>
+  </form>
+{% endblock %}

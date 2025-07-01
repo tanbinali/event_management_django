@@ -1,0 +1,102 @@
+{% extends 'events/base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">Organizer Dashboard</h1>
+<p>Click on any card to view the corresponding results.</p>
+<br>
+
+{% comment %} Dashboard Cards {% endcomment %}
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="total">
+        <p class="text-sm text-gray-500">Total Events</p>
+        <p class="text-xl font-bold">{{ total_events }}</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="upcoming">
+        <p class="text-sm text-gray-500">Upcoming Events</p>
+        <p class="text-xl font-bold">{{ upcoming }}</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="past">
+        <p class="text-sm text-gray-500">Past Events</p>
+        <p class="text-xl font-bold">{{ past }}</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="participants">
+        <p class="text-sm text-gray-500">Participants</p>
+        <p class="text-xl font-bold">{{ total_participants }}</p>
+    </div>
+</div>
+
+{% comment %} Sections {% endcomment %}
+<div id="section-today" class="toggle-section">
+    <h2 class="text-xl font-semibold mb-2">Today's Events</h2>
+    <ul class="space-y-2">
+        {% for event in events_today %}
+            <li class="bg-white p-4 rounded shadow">
+                <strong>{{ event.name }}</strong> @ {{ event.time }} - {{ event.location }}
+            </li>
+        {% empty %}
+            <li>No events today.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div id="section-total" class="toggle-section hidden">
+    <h2 class="text-xl font-semibold mb-2">All Events</h2>
+    <ul class="space-y-2">
+        {% for event in all_events %}
+            <li class="bg-white p-4 rounded shadow">
+                <strong>{{ event.name }}</strong> - {{ event.date }} {{ event.time }} @ {{ event.location }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div id="section-upcoming" class="toggle-section hidden">
+    <h2 class="text-xl font-semibold mb-2">Upcoming Events</h2>
+    <ul class="space-y-2">
+        {% for event in upcoming_events %}
+            <li class="bg-white p-4 rounded shadow">
+                <strong>{{ event.name }}</strong> - {{ event.date }} {{ event.time }} @ {{ event.location }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div id="section-past" class="toggle-section hidden">
+    <h2 class="text-xl font-semibold mb-2">Past Events</h2>
+    <ul class="space-y-2">
+        {% for event in past_events %}
+            <li class="bg-white p-4 rounded shadow">
+                <strong>{{ event.name }}</strong> - {{ event.date }} {{ event.time }} @ {{ event.location }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div id="section-participants" class="toggle-section hidden">
+    <h2 class="text-xl font-semibold mb-2">All Participants</h2>
+    <ul class="space-y-2">
+        {% for p in participants %}
+            <li class="bg-white p-4 rounded shadow">
+                {{ p.name }} ({{ p.email }})
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% comment %} Js for making clickable {% endcomment %}
+<script>
+    const cards = document.querySelectorAll("[data-target]");
+    const sections = document.querySelectorAll(".toggle-section");
+
+    cards.forEach(card => {
+        card.addEventListener("click", () => {
+            const target = card.getAttribute("data-target");
+            sections.forEach(section => section.classList.add("hidden"));
+            const selected = document.getElementById("section-" + target);
+            if (selected) selected.classList.remove("hidden");
+        });
+    });
+</script>
+
+{% endblock %}

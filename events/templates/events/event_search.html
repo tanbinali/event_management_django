@@ -1,0 +1,26 @@
+{% extends 'events/base.html' %}
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">Search Results for "{{ search }}"</h1>
+
+<form method="get" action="{% url 'event_search' %}" class="mb-6">
+    <input type="text" name="search" value="{{ search }}" placeholder="Search events..."
+        class="border border-gray-300 px-4 py-2 rounded w-full md:w-1/2">
+</form>
+
+{% if events %}
+    <div class="grid gap-4">
+        {% for event in events %}
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="text-xl font-bold">{{ event.name }}</h2>
+            <p class="text-gray-600">{{ event.date }} at {{ event.location }}</p>
+            <p class="text-sm italic text-gray-500">Category: {{ event.category.name }}</p>
+            <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:underline">View Details</a>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-gray-600">No events found matching your search.</p>
+{% endif %}
+{% endblock %}
