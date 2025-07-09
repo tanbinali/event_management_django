@@ -29,7 +29,9 @@ def send_activation_email(sender, instance, created, **kwargs):
         token = default_token_generator.make_token(instance)
         uid = urlsafe_base64_encode(force_bytes(instance.pk))
         domain = Site.objects.get_current().domain
-        activation_link = f"http://{domain}{reverse('activate', kwargs={'uidb64': uid, 'token': token})}"
+        protocol = "https" if not settings.DEBUG else "http"
+
+        activation_link = f"{protocol}://{domain}{reverse('activate', kwargs={'uidb64': uid, 'token': token})}"
 
         subject = "Activate Your Event Manager Account"
         message = (
@@ -38,6 +40,7 @@ def send_activation_email(sender, instance, created, **kwargs):
             f"{activation_link}\n\n"
             "If you did not register, please ignore this message."
         )
+
         send_mail(
             subject,
             message,

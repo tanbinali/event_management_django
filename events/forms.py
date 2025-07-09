@@ -10,7 +10,7 @@ from django.forms.widgets import FileInput
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        exclude = ['rsvps','participants']  # Hide rsvps from form
+        exclude = ['rsvps','participants'] 
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'
@@ -64,7 +64,7 @@ class ParticipantForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']  # exclude password here
+        fields = ['username', 'email', 'first_name', 'last_name']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'}),
             'email': forms.EmailInput(attrs={'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'}),
@@ -79,7 +79,6 @@ class ParticipantForm(forms.ModelForm):
             user.set_password(password)
         if commit:
             user.save()
-            # Auto add to Participant group
             from django.contrib.auth.models import Group
             group, created = Group.objects.get_or_create(name='Participant')
             user.groups.add(group)

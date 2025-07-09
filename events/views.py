@@ -12,6 +12,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 
+def home_view(request):
+    return render(request, 'events/home.html')
+
 def group_required(group_names):
     def decorator(view_func):
         @wraps(view_func)
@@ -39,7 +42,6 @@ def admin_or_organizer_required(view_func):
 
 @login_required
 def event_list(request):
-    # select_related category to avoid query per event in template
     events = Event.objects.select_related('category').all()
     categories = Category.objects.all()
     participants = User.objects.filter(groups__name='Participant').only('id', 'username', 'email', 'first_name', 'last_name')
@@ -52,7 +54,6 @@ def event_list(request):
 
 @login_required
 def event_detail(request, pk):
-    # select_related only 'category', prefetch rsvps M2M for optimization
     event = get_object_or_404(Event.objects.select_related('category').prefetch_related('rsvps'), pk=pk)
     user = request.user
     is_admin_or_organizer = (
@@ -105,12 +106,8 @@ def dashboard_view(request):
     all_events = Event.objects.all().select_related('category').prefetch_related('rsvps')
 
     total_events = all_events.count()
-
-    # ✅ Users (non-admin/staff)
     users = User.objects.filter(is_superuser=False, is_staff=False).distinct()
     total_users = users.count()
-
-    # ✅ RSVP Participants
     rsvped_participants = users.filter(rsvped_events__isnull=False).distinct()
     total_participants = rsvped_participants.count()
 
@@ -325,3 +322,4 @@ def participant_delete(request, pk):
 def participant_manage(request):
     participants = User.objects.filter(groups__name='Participant').only('id', 'username', 'email', 'first_name', 'last_name')
     return render(request, 'events/participant_manage.html', {'participants': participants})
+
