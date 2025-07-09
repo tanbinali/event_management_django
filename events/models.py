@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -14,14 +15,13 @@ class Event(models.Model):
     time = models.TimeField()
     location = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
-class Participant(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    events = models.ManyToManyField(Event)
+    rsvps = models.ManyToManyField(User, blank=True, related_name='rsvped_events')
+    image = models.ImageField(
+        upload_to='event_images/',
+        default='event_images/default.jpg',
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.name

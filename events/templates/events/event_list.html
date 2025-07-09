@@ -5,64 +5,19 @@
 
 {% comment %} Welcome Section {% endcomment %}
 <div class="mb-10 text-center">
-  <h1 class="text-4xl font-bold text-gray-800 mb-2">Welcome to the Event Hub</h1>
-  <p class="text-lg text-gray-600">Here you can browse, create, and manage all your events, participants, and categories.</p>
+  {% if user.is_superuser or user.groups.all.0.name in 'Admin Organizer' %}
+    <h1 class="text-4xl font-bold text-gray-800 mb-2">Welcome to the Event Hub</h1>
+    <p class="text-lg text-gray-600">
+        Here you can browse all your event and categories.
+    </p>
+  {% else %}
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome, {{user.username}} !</h1>
+    <p class="text-md text-gray-600">Browse and RSVP to upcoming events below.</p>
+  {% endif %}
 </div>
-
-
-<hr>
-<br>
-
-
-{% comment %} Add + Manage Buttons {% endcomment %}
-<div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-    
-    <!-- Event Section -->
-    <div class="space-y-3">
-        <h2 class="text-lg font-semibold text-gray-800">Event</h2>
-        <div class="flex items-center gap-3">
-            <a href="{% url 'event_create' %}" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center">
-                <span class="mr-1">+</span> Add Event
-            </a>
-        </div>
-    </div>
-
-    {% comment %}Participant Section{% endcomment %}
-    <div class="space-y-3">
-        <h2 class="text-lg font-semibold text-gray-800">Participant</h2>
-        <div class="flex items-center gap-3">
-            <a href="{% url 'participant_create' %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center">
-                <span class="mr-1">+</span> Add
-            </a>
-            <a href="{% url 'participant_manage' %}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
-                Manage
-            </a>
-        </div>
-    </div>
-
-     {% comment %} Category Section {% endcomment %}
-    <div class="space-y-3">
-        <h2 class="text-lg font-semibold text-gray-800">Category</h2>
-        <div class="flex items-center gap-3">
-            <a href="{% url 'category_create' %}" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 flex items-center">
-                <span class="mr-1">+</span> Add
-            </a>
-            <a href="{% url 'category_manage' %}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
-                Manage
-            </a>
-        </div>
-    </div>
-
-</div>
-
-<hr>
-<br>
-
 
 {% comment %} Filters Section {% endcomment %}
 <div class="flex flex-wrap items-end justify-between mb-8 gap-6">
-
-    {% comment %} Date Range Filter {% endcomment %}
     <form method="get" action="{% url 'filtered_events' %}" class="flex flex-wrap gap-6 items-end">
         <div>
             <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
@@ -75,14 +30,13 @@
         <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900">Filter</button>
     </form>
 
-    {% comment %} Category Filter {% endcomment %}
     <form method="get" action="{% url 'event_search' %}" class="flex flex-wrap items-end gap-3">
         <div>
             <label for="search" class="block text-sm font-medium text-gray-700">Category</label>
             <select name="search" id="search" class="border border-gray-300 px-3 py-2 rounded w-full">
                 <option value="">-- Filter by Category --</option>
                 {% for category in categories %}
-                <option value="{{ category.name }}">{{ category.name }}</option>
+                    <option value="{{ category.name }}">{{ category.name }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -90,29 +44,36 @@
     </form>
 </div>
 
-<hr>
-<br>
+<hr><br>
 
 <h1 class="text-2xl font-semibold mb-6 align-middle">All Events</h1>
 
-{% comment %} Event cards {% endcomment %}
 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for event in events %}
-    <div class="bg-white p-5 rounded-xl shadow border border-gray-200 
-                transition-all duration-300 ease-in-out 
-                hover:shadow-lg hover:-translate-y-1 hover:border-gray-300">
+    <div class="bg-white p-5 rounded-xl shadow border border-gray-200 transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:border-gray-300">
+        
+        <!-- Image -->
+        <div class="mb-3 h-48 w-full overflow-hidden rounded-lg">
+            <img src="{{ event.image.url }}" alt="{{ event.name }}" class="object-cover h-full w-full">
+        </div>
+
+        <!-- Event Details -->
         <h2 class="text-xl font-bold text-gray-800 mb-1">{{ event.name }}</h2>
         <p class="text-sm text-gray-500">{{ event.date }} at {{ event.time }}</p>
         <p class="text-gray-700">{{ event.location }}</p>
         <p class="text-sm italic text-gray-600 mb-3">Category: {{ event.category.name }}</p>
         <div class="flex flex-wrap gap-2">
             <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:underline">View</a>
-            <a href="{% url 'event_update' event.pk %}" class="text-yellow-600 hover:underline">Edit</a>
-            <a href="{% url 'event_delete' event.pk %}" class="text-red-600 hover:underline">Delete</a>
+            {% if user.is_superuser or user.groups.all.0.name in 'Admin Organizer' %}
+                <a href="{% url 'event_update' event.pk %}" class="text-yellow-600 hover:underline">Edit</a>
+                <a href="{% url 'event_delete' event.pk %}" class="text-red-600 hover:underline">Delete</a>
+            {% endif %}
         </div>
     </div>
     {% empty %}
     <p class="text-gray-600">No events found.</p>
     {% endfor %}
 </div>
+
+
 {% endblock %}

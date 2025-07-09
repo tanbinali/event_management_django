@@ -1,25 +1,119 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Event Management{% endblock %}</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 ">
-    <nav class="bg-green-700 text-white px-6 py-4">
-        <div class="container mx-auto flex justify-between">
-            <div class="font-bold text-xl">Event Manager</div>
-            <div class="space-x-4">
-                <a href="/" class="hover:underline">Events</a>
-                <a href="/dashboard/" class="hover:underline">Dashboard</a>
-                <a href="/search/" class="hover:underline">Search</a>
-            </div>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-full">
+    
+
+    <!-- Navbar -->
+    <nav class="bg-green-700 text-white shadow relative z-50">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between relative">
+
+        <!-- Left: Brand -->
+        <div class="font-bold text-xl z-50">
+        <a href="{% url 'event_list' %}" class="hover:text-yellow-300 transition">Event Manager</a>
         </div>
+
+        <!-- Center: Navigation Links (hidden on small screens) -->
+        <div class="hidden md:flex space-x-6 z-40 relative">
+        <a href="{% url 'event_list' %}" class="hover:text-yellow-300 transition">Events</a>
+        <a href="{% url 'redirect_dashboard' %}" class="hover:text-yellow-300 transition">Dashboard</a>
+        <a href="/search/" class="hover:text-yellow-300 transition">Search</a>
+        </div>
+
+        <!-- Right: User Dropdown (hidden on small screens) -->
+        <div class="hidden md:flex items-center text-sm space-x-4 relative z-50">
+        {% if user.is_authenticated %}
+            <div class="relative">
+            <button id="userDropdownButton" class="focus:outline-none">
+                {{ user.first_name|default:user.username }}
+            </button>
+            <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg hidden z-50">
+                <div class="px-4 py-2 border-b">{{ user.email }}</div>
+                <a href="{% url 'logout' %}" class="block px-4 py-2 hover:bg-gray-100 text-red-600">Logout</a>
+            </div>
+            </div>
+        {% else %}
+            <a href="{% url 'login' %}" class="text-white hover:text-yellow-300 transition">Login</a>
+            <a href="{% url 'signup' %}" class="text-white hover:text-yellow-300 transition">Sign Up</a>
+        {% endif %}
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden z-50">
+        <button id="mobile-menu-button" class="focus:outline-none">
+            ☰
+        </button>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Links -->
+    <div id="mobile-nav" class="md:hidden hidden px-6 pb-4 z-40">
+        <a href="{% url 'event_list' %}" class="block py-2 hover:text-yellow-300">Events</a>
+        <a href="{% url 'redirect_dashboard' %}" class="block py-2 hover:text-yellow-300">Dashboard</a>
+        <a href="/search/" class="block py-2 hover:text-yellow-300">Search</a>
+        {% if user.is_authenticated %}
+        <hr class="my-2 border-gray-400">
+        <p class="py-2">{{ user.email }}</p>
+        <a href="{% url 'logout' %}" class="block py-2 text-red-300 hover:text-red-500">Logout</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="block py-2 hover:text-yellow-300">Login</a>
+        <a href="{% url 'signup' %}" class="block py-2 hover:text-yellow-300">Sign Up</a>
+        {% endif %}
+    </div>
     </nav>
 
-    <main class="container mx-auto py-6 px-4">
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto py-6 px-4">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-green-700 text-white">
+        <div class="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
+            <div class="mb-2 md:mb-0 font-semibold">
+                &copy;Event Manager (2025). All rights reserved.
+            </div>
+            <div>
+                Built by <a href="https://tanbinali.github.io/WebDev_assignment1_phitron/project.html" target="_blank" class="font-bold hover:text-yellow-300 transition">MD. Tanbin Ali</a> using Django and Tailwind CSS.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+   <script>
+  // Mobile menu toggle
+  document.getElementById('mobile-menu-button').addEventListener('click', function () {
+    const nav = document.getElementById('mobile-nav');
+    nav.classList.toggle('hidden');
+  });
+
+  // Dropdown toggle (desktop)
+  const dropdownBtn = document.getElementById('userDropdownButton');
+  const dropdown = document.getElementById('userDropdown');
+
+  if (dropdownBtn) {
+    dropdownBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      dropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!dropdown.contains(e.target) && !dropdownBtn.contains(e.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+    dropdown.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+  }
+</script>
+
 </body>
 </html>

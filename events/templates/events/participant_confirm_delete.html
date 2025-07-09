@@ -1,14 +1,14 @@
 {% extends 'events/base.html' %}
-{% block title %}
-  Delete participant
-{% endblock %}
+{% block title %}Delete Participant{% endblock %}
 {% block content %}
-  <h2 class="text-lg font-semibold mb-4">Delete Participant</h2>
-  <p>Are you sure you want to delete "{{ participant.name }}"?</p>
+  <h1 class="text-xl font-bold mb-4">Delete Participant</h1>
+  <p>Are you sure you want to delete participant "{{ user.username }}"?</p>
 
-  <form method="post">
+  <form method="post" class="mt-4">
     {% csrf_token %}
-    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Delete</button>
-    <a href="{% url 'participant_manage' %}" class="ml-4 text-blue-600">Cancel</a>
+    <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-semibold">
+      Confirm Delete
+    </button>
+    <a href="{% url 'participant_manage' %}" class="ml-4 text-gray-600 underline">Cancel</a>
   </form>
 {% endblock %}

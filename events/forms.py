@@ -1,10 +1,16 @@
 from django import forms
-from .models import Event, Category, Participant
+from .models import Event, Category
+from django.contrib.auth.models import User
+from django import forms
+from django.contrib.auth.models import User
+from .models import Event, Category
+from django.forms.widgets import FileInput
+
 
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = '__all__'
+        exclude = ['rsvps','participants']  # Hide rsvps from form
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'
@@ -27,7 +33,11 @@ class EventForm(forms.ModelForm):
             'category': forms.Select(attrs={
                 'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'
             }),
+            'image': FileInput(attrs={
+                'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm',
+            }),
         }
+
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -42,23 +52,35 @@ class CategoryForm(forms.ModelForm):
                 'rows': 4
             }),
         }
-
-        
         
 class ParticipantForm(forms.ModelForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'
+        }),
+        required=False,
+        label='Password'
+    )
+
     class Meta:
-        model = Participant
-        fields = '__all__'
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']  # exclude password here
         widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'
-            }),
-            'email': forms.EmailInput(attrs={
-                'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'
-            }),
-            'events': forms.CheckboxSelectMultiple(attrs={
-                'class': 'ml-2 space-y-1'
-            }),
+            'username': forms.TextInput(attrs={'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'}),
+            'email': forms.EmailInput(attrs={'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'}),
+            'first_name': forms.TextInput(attrs={'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'}),
+            'last_name': forms.TextInput(attrs={'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'}),
         }
 
-
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        password = self.cleaned_data.get('password')
+        if password:
+            user.set_password(password)
+        if commit:
+            user.save()
+            # Auto add to Participant group
+            from django.contrib.auth.models import Group
+            group, created = Group.objects.get_or_create(name='Participant')
+            user.groups.add(group)
+        return user

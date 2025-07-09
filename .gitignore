@@ -3,3 +3,5 @@ events_env/
 .vscode/
 db.sqlite3
 node_modules/
+.env
+user_passwords.txt
