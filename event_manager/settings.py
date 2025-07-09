@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com','http://127.0.0.1:8000']
@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'users',
 ]
-SITE_ID = 1
+SITE_ID = int(config("SITE_ID", default=1))
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
