@@ -21,8 +21,10 @@ def send_activation_email(sender, instance, created, **kwargs):
     if created and not instance.is_active:
         token = default_token_generator.make_token(instance)
         uid = urlsafe_base64_encode(force_bytes(instance.pk))
-        domain = Site.objects.get_current().domain
-        protocol = 'https' if not settings.DEBUG else 'http'
+        current_site = Site.objects.get_current()
+        domain = current_site.domain
+        
+        protocol = 'https' if current_site.id != 1 else 'http'
 
         activation_link = f"{protocol}://{domain}{reverse('activate', kwargs={'uidb64': uid, 'token': token})}"
 
