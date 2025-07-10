@@ -1,8 +1,9 @@
 {% extends 'events/base.html' %}
-{% block title %}Delete Participant{% endblock %}
+{% block title %}Delete User{% endblock %}
+
 {% block content %}
-  <h1 class="text-xl font-bold mb-4">Delete Participant</h1>
-  <p>Are you sure you want to delete participant "{{ user.username }}"?</p>
+  <h1 class="text-xl font-bold mb-4">Delete User</h1>
+  <p>Are you sure you want to delete user "{{ user.username }}"?</p>
 
   <form method="post" class="mt-4">
     {% csrf_token %}

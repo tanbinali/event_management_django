@@ -2,10 +2,9 @@ from django import forms
 from .models import Event, Category
 from django.contrib.auth.models import User
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .models import Event, Category
 from django.forms.widgets import FileInput
-
 
 class EventForm(forms.ModelForm):
     class Meta:
@@ -52,8 +51,8 @@ class CategoryForm(forms.ModelForm):
                 'rows': 4
             }),
         }
-        
-class ParticipantForm(forms.ModelForm):
+
+class UserForm(forms.ModelForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'
@@ -62,9 +61,18 @@ class ParticipantForm(forms.ModelForm):
         label='Password'
     )
 
+    groups = forms.ModelChoiceField(
+        queryset=Group.objects.all(),
+        required=True,
+        widget=forms.Select(attrs={
+            'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'
+        }),
+        label='User Role'
+    )
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['username', 'email', 'first_name', 'last_name', 'groups']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'}),
             'email': forms.EmailInput(attrs={'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'}),
@@ -79,7 +87,7 @@ class ParticipantForm(forms.ModelForm):
             user.set_password(password)
         if commit:
             user.save()
-            from django.contrib.auth.models import Group
-            group, created = Group.objects.get_or_create(name='Participant')
-            user.groups.add(group)
+            user.groups.clear()
+            user.groups.add(self.cleaned_data['groups'])
         return user
+

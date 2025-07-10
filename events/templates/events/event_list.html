@@ -4,13 +4,13 @@
 {% block content %}
 
 <div class="mb-10 text-center">
-  {% if user.is_superuser or user.groups.all.0.name in 'Admin Organizer' %}
+  {% if is_admin_or_organizer %}
     <h1 class="text-4xl font-bold text-gray-800 mb-2">Welcome to the Event Hub</h1>
     <p class="text-lg text-gray-600">
         Here you can browse all your event and categories.
     </p>
   {% else %}
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome, {{user.username}} !</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome, {{ user.username }}!</h1>
     <p class="text-md text-gray-600">Browse and RSVP to upcoming events below.</p>
   {% endif %}
 </div>
@@ -49,7 +49,7 @@
 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for event in events %}
     <div class="bg-white p-5 rounded-xl shadow border border-gray-200 transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:border-gray-300">
-        
+
         <div class="mb-3 h-48 w-full overflow-hidden rounded-lg">
             <img src="{{ event.image.url }}" alt="{{ event.name }}" class="object-cover h-full w-full">
         </div>
@@ -59,17 +59,20 @@
         <p class="text-gray-700">{{ event.location }}</p>
         <p class="text-sm italic text-gray-600 mb-3">Category: {{ event.category.name }}</p>
         <div class="flex flex-wrap gap-2">
-            <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:underline">View/RSVP</a>
-            {% if user.is_superuser or user.groups.all.0.name in 'Admin Organizer' %}
+            {% if is_admin_or_organizer %}
+                <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:underline">View</a>
                 <a href="{% url 'event_update' event.pk %}" class="text-yellow-600 hover:underline">Edit</a>
                 <a href="{% url 'event_delete' event.pk %}" class="text-red-600 hover:underline">Delete</a>
+            {% elif is_participant %}
+                <a href="{% url 'event_detail' event.pk %}" class="text-green-600 hover:underline">RSVP</a>
             {% endif %}
         </div>
+        <p class="text-gray-600 mt-3">Participants: {{ event.participants.count }}</p>
+
     </div>
     {% empty %}
     <p class="text-gray-600">No events found.</p>
     {% endfor %}
 </div>
-
 
 {% endblock %}
