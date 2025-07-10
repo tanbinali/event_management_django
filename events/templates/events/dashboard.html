@@ -13,7 +13,6 @@
 </h1>
 
 <p class="mb-4">Click on any card to view the corresponding results.</p>
-
 <hr><br>
 
 {% if is_admin or is_organizer %}
@@ -59,17 +58,18 @@
 <hr><br>
 {% endif %}
 
-<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+{% if is_admin or is_organizer %}
+<div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
   <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="total">
     <p class="text-sm text-gray-500">Total Events</p>
     <p class="text-xl font-bold">{{ total_events }}</p>
   </div>
   <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="upcoming">
-    <p class="text-sm text-gray-500">Upcoming Events</p>
+    <p class="text-sm text-gray-500">Upcoming</p>
     <p class="text-xl font-bold">{{ upcoming }}</p>
   </div>
   <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="past">
-    <p class="text-sm text-gray-500">Past Events</p>
+    <p class="text-sm text-gray-500">Past</p>
     <p class="text-xl font-bold">{{ past }}</p>
   </div>
   {% if is_admin %}
@@ -77,14 +77,17 @@
     <p class="text-sm text-gray-500">Users</p>
     <p class="text-xl font-bold">{{ users|length }}</p>
   </div>
+  <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="organizers">
+    <p class="text-sm text-gray-500">Organizers</p>
+    <p class="text-xl font-bold">{{ organizers|length }}</p>
+  </div>
   <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="participants">
     <p class="text-sm text-gray-500">Participants</p>
-    <p class="text-xl font-bold">{{ rsvped_participants|length }}</p>
+    <p class="text-xl font-bold">{{ participants|length }}</p>
   </div>
   {% endif %}
 </div>
-
-<hr><br>
+{% endif %}
 
 <div id="section-today" class="toggle-section">
   <h2 class="text-xl font-semibold mb-2">Today's Events</h2>
@@ -141,22 +144,34 @@
         <p class="font-medium text-sm">{{ user.get_full_name|default:user.username }}</p>
         <p class="text-xs text-gray-600">{{ user.email }}</p>
       </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div id="section-organizers" class="toggle-section hidden">
+  <h2 class="text-xl font-semibold mb-2">Organizers</h2>
+  <ul class="space-y-2 max-h-64 overflow-auto">
+    {% for org in organizers %}
+      <li class="bg-white p-4 rounded shadow">
+        <p class="font-medium text-sm">{{ org.get_full_name|default:org.username }}</p>
+        <p class="text-xs text-gray-600">{{ org.email }}</p>
+      </li>
     {% empty %}
-      <li class="text-gray-500">No users found.</li>
+      <li class="text-gray-500">No organizers found.</li>
     {% endfor %}
   </ul>
 </div>
 
 <div id="section-participants" class="toggle-section hidden">
-  <h2 class="text-xl font-semibold mb-2">RSVPed Participants</h2>
+  <h2 class="text-xl font-semibold mb-2">Participants</h2>
   <ul class="space-y-2 max-h-64 overflow-auto">
-    {% for participant in rsvped_participants %}
+    {% for participant in participants %}
       <li class="bg-white p-4 rounded shadow">
         <p class="font-medium text-sm">{{ participant.get_full_name|default:participant.username }}</p>
         <p class="text-xs text-gray-600">{{ participant.email }}</p>
       </li>
     {% empty %}
-      <li class="text-gray-500">No RSVP records yet.</li>
+      <li class="text-gray-500">No participants found.</li>
     {% endfor %}
   </ul>
 </div>
@@ -175,5 +190,4 @@
     });
   });
 </script>
-
 {% endblock %}

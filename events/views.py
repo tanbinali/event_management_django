@@ -1,16 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Event, Category
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .forms import EventForm, CategoryForm, ParticipantForm
 from datetime import date, datetime
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from functools import wraps
-from django.core.mail import send_mail
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import Group
 
 def home_view(request):
     return render(request, 'events/home.html')
@@ -96,40 +93,33 @@ def event_delete(request, pk):
     return render(request, 'events/event_confirm_delete.html', {'event': event})
 
 
-@login_required
+@admin_or_organizer_required
 def dashboard_view(request):
     today = date.today()
 
-    events_today = Event.objects.filter(date=today).select_related('category').prefetch_related('rsvps')
-    upcoming_events = Event.objects.filter(date__gt=today).select_related('category').prefetch_related('rsvps')
-    past_events = Event.objects.filter(date__lt=today).select_related('category').prefetch_related('rsvps')
-    all_events = Event.objects.all().select_related('category').prefetch_related('rsvps')
+    events_today = Event.objects.filter(date=today)
+    upcoming_events = Event.objects.filter(date__gt=today)
+    past_events = Event.objects.filter(date__lt=today)
 
-    total_events = all_events.count()
-    users = User.objects.filter(is_superuser=False, is_staff=False).distinct()
-    total_users = users.count()
-    rsvped_participants = users.filter(rsvped_events__isnull=False).distinct()
-    total_participants = rsvped_participants.count()
+    all_events = Event.objects.all()
+    all_users = User.objects.all()
+    organizers = User.objects.filter(groups__name='Organizer')
+    participants = User.objects.filter(groups__name='Participant')
 
-    user = request.user
-    is_admin = user.is_superuser or user.groups.filter(name='Admin').exists()
-    is_organizer = user.groups.filter(name='Organizer').exists()
+    is_admin = request.user.is_superuser or request.user.groups.filter(name='Admin').exists()
+    is_organizer = request.user.groups.filter(name='Organizer').exists()
 
     context = {
         'events_today': events_today,
         'upcoming_events': upcoming_events,
         'past_events': past_events,
         'all_events': all_events,
-
-        'users': users,
-        'rsvped_participants': rsvped_participants,
-
-        'total_events': total_events,
+        'total_events': all_events.count(),
         'upcoming': upcoming_events.count(),
         'past': past_events.count(),
-        'total_users': total_users,
-        'total_participants': total_participants,
-
+        'users': all_users,
+        'organizers': organizers,
+        'participants': participants,
         'is_admin': is_admin,
         'is_organizer': is_organizer,
     }
@@ -145,7 +135,7 @@ def event_search(request):
         Q(description__icontains=search) |
         Q(location__icontains=search) |
         Q(category__name__icontains=search)
-    ).select_related('category')
+    ).select_related('category').distinct()
 
     categories = Category.objects.all()
 
@@ -173,7 +163,7 @@ def filter_by_date_range(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-    events = Event.objects.all().order_by('date').select_related('category')
+    events = Event.objects.select_related('category')
 
     if start_date:
         try:
@@ -188,6 +178,8 @@ def filter_by_date_range(request):
             events = events.filter(date__lte=end_date_dt)
         except ValueError:
             pass
+
+    events = events.order_by('date')
 
     return render(request, 'events/filtered_events.html', {
         'events': events,
@@ -254,7 +246,6 @@ def rsvp_event(request, event_id):
     return redirect('participant_dashboard')
 
 
-
 @login_required
 def participant_dashboard(request):
     user = request.user
@@ -294,7 +285,6 @@ def participant_create(request):
     return render(request, 'events/participant_form.html', {'form': form})
 
 
-
 @admin_required
 def participant_update(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -318,8 +308,8 @@ def participant_delete(request, pk):
         return redirect('participant_manage')
     return render(request, 'events/participant_confirm_delete.html', {'user': user})
 
+
 @admin_required
 def participant_manage(request):
     participants = User.objects.filter(groups__name='Participant').only('id', 'username', 'email', 'first_name', 'last_name')
     return render(request, 'events/participant_manage.html', {'participants': participants})
-

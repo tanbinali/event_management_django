@@ -1,6 +1,6 @@
 {% extends 'events/base.html' %}
 {% block title %}
-    Edit Category
+    Category
 {% endblock %}
 {% block content %}
 
@@ -12,7 +12,6 @@
     <button type="submit" style="background-color: #7c3aed; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem;">Save</button>
 </form>
 {% endif %}
-<h2>Edit Category</h2>
 <div style="display: flex; flex-direction: column; gap: 1rem;">
     {% for category in categories %}
     <div style="display: flex; justify-content: space-between; align-items: center; border: 1px solid #ddd; padding: 1rem; border-radius: 0.375rem;">
