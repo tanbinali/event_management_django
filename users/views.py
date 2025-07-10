@@ -2,12 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from .forms import SignUpForm, CustomLoginForm
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.conf import settings
 
 def signup_view(request):
@@ -17,20 +14,16 @@ def signup_view(request):
             user = form.save(commit=False)
             user.is_active = False
             user.save()
-
             return render(request, 'users/activation_sent.html')
     else:
         form = SignUpForm()
     return render(request, 'users/signup.html', {'form': form})
 
-
-
 def login_view(request):
     if request.method == 'POST':
         form = CustomLoginForm(request, data=request.POST)
         if form.is_valid():
-            user = form.get_user()
-            login(request, user)
+            login(request, form.get_user())
             return redirect('redirect_dashboard')
     else:
         form = CustomLoginForm()
