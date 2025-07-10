@@ -7,11 +7,12 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.sites.models import Site
-from events.models import Event
 from django.urls import reverse
+from events.models import Event, RSVP
+from django.contrib.auth.models import Group
 
-@receiver(m2m_changed, sender=Event.rsvps.through)
-def send_rsvp_email(sender, instance, action, pk_set, **kwargs):
+@receiver(m2m_changed, sender=Event.participants.through)
+def send_participant_email(sender, instance, action, pk_set, **kwargs):
     if action == 'post_add':
         for user_id in pk_set:
             user = User.objects.get(pk=user_id)
@@ -48,3 +49,11 @@ def send_activation_email(sender, instance, created, **kwargs):
             [instance.email],
             fail_silently=True,
         )
+
+@receiver(post_save, sender=User)
+def assign_default_group(sender, instance, created, **kwargs):
+    if created:
+        # If user is not in Admin or Organizer groups
+        if not instance.groups.filter(name__in=['Admin', 'Organizer']).exists():
+            participant_group, _ = Group.objects.get_or_create(name='Participant')
+            instance.groups.add(participant_group)

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-from .models import Event, Category
+from .models import Event, Category, RSVP
 from django.contrib.auth.models import User, Group
 from .forms import EventForm, CategoryForm, ParticipantForm
 from datetime import date, datetime
@@ -36,7 +36,6 @@ def participant_required(view_func):
 def admin_or_organizer_required(view_func):
     return group_required(['Admin', 'Organizer'])(view_func)
 
-
 @login_required
 def event_list(request):
     events = Event.objects.select_related('category').all()
@@ -48,10 +47,9 @@ def event_list(request):
         'participants': participants,
     })
 
-
 @login_required
 def event_detail(request, pk):
-    event = get_object_or_404(Event.objects.select_related('category').prefetch_related('rsvps'), pk=pk)
+    event = get_object_or_404(Event.objects.select_related('category').prefetch_related('participants'), pk=pk)
     user = request.user
     is_admin_or_organizer = (
         user.is_superuser or user.groups.filter(name__in=['Admin', 'Organizer']).exists()
@@ -60,7 +58,6 @@ def event_detail(request, pk):
         'event': event,
         'is_admin_or_organizer': is_admin_or_organizer
     })
-
 
 @admin_or_organizer_required
 def event_create(request):
@@ -73,7 +70,6 @@ def event_create(request):
         form = EventForm()
     return render(request, 'events/event_form.html', {'form': form})
 
-
 @admin_or_organizer_required
 def event_update(request, pk):
     event = get_object_or_404(Event, pk=pk)
@@ -83,7 +79,6 @@ def event_update(request, pk):
         return redirect('event_list')
     return render(request, 'events/event_form.html', {'form': form})
 
-
 @admin_or_organizer_required
 def event_delete(request, pk):
     event = get_object_or_404(Event, pk=pk)
@@ -92,23 +87,18 @@ def event_delete(request, pk):
         return redirect('event_list')
     return render(request, 'events/event_confirm_delete.html', {'event': event})
 
-
 @admin_or_organizer_required
 def dashboard_view(request):
     today = date.today()
-
     events_today = Event.objects.filter(date=today)
     upcoming_events = Event.objects.filter(date__gt=today)
     past_events = Event.objects.filter(date__lt=today)
-
     all_events = Event.objects.all()
     all_users = User.objects.all()
     organizers = User.objects.filter(groups__name='Organizer')
     participants = User.objects.filter(groups__name='Participant')
-
     is_admin = request.user.is_superuser or request.user.groups.filter(name='Admin').exists()
     is_organizer = request.user.groups.filter(name='Organizer').exists()
-
     context = {
         'events_today': events_today,
         'upcoming_events': upcoming_events,
@@ -123,9 +113,7 @@ def dashboard_view(request):
         'is_admin': is_admin,
         'is_organizer': is_organizer,
     }
-
     return render(request, 'events/dashboard.html', context)
-
 
 @login_required
 def event_search(request):
@@ -136,51 +124,38 @@ def event_search(request):
         Q(location__icontains=search) |
         Q(category__name__icontains=search)
     ).select_related('category').distinct()
-
     categories = Category.objects.all()
-
     return render(request, 'events/event_search.html', {
         'events': events,
         'search': search,
         'categories': categories
     })
 
-
 @admin_or_organizer_required
 @login_required
 def event_manage(request):
     user = request.user
-    if user.is_superuser or user.groups.filter(name="Organizer").exists():
-        events = Event.objects.select_related('category').all()
-    else:
-        events = Event.objects.none()
-
+    events = Event.objects.select_related('category').all() if user.is_superuser or user.groups.filter(name="Organizer").exists() else Event.objects.none()
     return render(request, 'events/event_manage.html', {'events': events})
-
 
 @login_required
 def filter_by_date_range(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
-
     events = Event.objects.select_related('category')
-
     if start_date:
         try:
             start_date_dt = datetime.strptime(start_date, '%Y-%m-%d').date()
             events = events.filter(date__gte=start_date_dt)
         except ValueError:
             pass
-
     if end_date:
         try:
             end_date_dt = datetime.strptime(end_date, '%Y-%m-%d').date()
             events = events.filter(date__lte=end_date_dt)
         except ValueError:
             pass
-
     events = events.order_by('date')
-
     return render(request, 'events/filtered_events.html', {
         'events': events,
         'start_date': start_date or '',
@@ -188,7 +163,6 @@ def filter_by_date_range(request):
         'categories': Category.objects.all(),
         'today': now().date()
     })
-
 
 @admin_or_organizer_required
 def category_create(request):
@@ -201,12 +175,10 @@ def category_create(request):
         form = CategoryForm()
     return render(request, 'events/category_form.html', {'form': form})
 
-
 @admin_or_organizer_required
 def category_manage(request):
     categories = Category.objects.all()
     return render(request, 'events/category_form.html', {'categories': categories})
-
 
 @admin_or_organizer_required
 def category_delete(request, pk):
@@ -215,7 +187,6 @@ def category_delete(request, pk):
         category.delete()
         return redirect('category_manage')
     return render(request, 'events/category_confirm_delete.html', {'category': category})
-
 
 @admin_or_organizer_required
 def category_update(request, pk):
@@ -229,22 +200,18 @@ def category_update(request, pk):
         form = CategoryForm(instance=category)
     return render(request, 'events/category_form.html', {'form': form})
 
-
 @login_required
 def rsvp_event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     user = request.user
-
-    if event.rsvps.filter(id=user.id).exists():
-        return redirect('participant_dashboard')
-
-    event.rsvps.add(user)
-
-    participant_group, created = Group.objects.get_or_create(name='Participant')
-    user.groups.add(participant_group)
-    
+    rsvp, created = RSVP.objects.get_or_create(user=user, event=event)
+    if created:
+        rsvp.status = 'confirmed'
+        rsvp.save()
+        event.participants.add(user)
+        participant_group, _ = Group.objects.get_or_create(name='Participant')
+        user.groups.add(participant_group)
     return redirect('participant_dashboard')
-
 
 @login_required
 def participant_dashboard(request):
@@ -253,7 +220,6 @@ def participant_dashboard(request):
     return render(request, 'events/participant_dashboard.html', {
         'rsvped_events': rsvped_events,
     })
-
 
 @login_required
 def dashboard_redirect(request):
@@ -265,12 +231,10 @@ def dashboard_redirect(request):
     else:
         return redirect('event_list')
 
-
 @admin_required
 def participant_list(request):
     participants = User.objects.filter(groups__name='Participant').only('id', 'username', 'email', 'first_name', 'last_name')
     return render(request, 'events/participant_list.html', {'participants': participants})
-
 
 @admin_required
 def participant_create(request):
@@ -281,9 +245,7 @@ def participant_create(request):
             return redirect('participant_manage')
     else:
         form = ParticipantForm()
-        print("GET form fields:", form.fields.keys())
     return render(request, 'events/participant_form.html', {'form': form})
-
 
 @admin_required
 def participant_update(request, pk):
@@ -298,7 +260,6 @@ def participant_update(request, pk):
         form = ParticipantForm(instance=user)
     return render(request, 'events/participant_form.html', {'form': form})
 
-
 @admin_required
 def participant_delete(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -307,7 +268,6 @@ def participant_delete(request, pk):
         messages.success(request, 'Participant deleted successfully.')
         return redirect('participant_manage')
     return render(request, 'events/participant_confirm_delete.html', {'user': user})
-
 
 @admin_required
 def participant_manage(request):

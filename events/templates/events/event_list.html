@@ -59,7 +59,7 @@
         <p class="text-gray-700">{{ event.location }}</p>
         <p class="text-sm italic text-gray-600 mb-3">Category: {{ event.category.name }}</p>
         <div class="flex flex-wrap gap-2">
-            <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:underline">View</a>
+            <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:underline">View/RSVP</a>
             {% if user.is_superuser or user.groups.all.0.name in 'Admin Organizer' %}
                 <a href="{% url 'event_update' event.pk %}" class="text-yellow-600 hover:underline">Edit</a>
                 <a href="{% url 'event_delete' event.pk %}" class="text-red-600 hover:underline">Delete</a>

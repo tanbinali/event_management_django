@@ -10,7 +10,7 @@ from django.forms.widgets import FileInput
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        exclude = ['rsvps','participants'] 
+        exclude = ['participants'] 
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'bg-gray-100 border border-gray-300 rounded w-full px-4 py-2 shadow-sm'
