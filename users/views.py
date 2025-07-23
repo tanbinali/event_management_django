@@ -18,7 +18,6 @@ def signup_view(request):
             user = form.save(commit=False)
             user.is_active = False
             user.save()
-            # Optional: send activation email here
             return render(request, 'users/activation_sent.html')
     else:
         form = SignUpForm()
@@ -30,7 +29,7 @@ def login_view(request):
         form = CustomLoginForm(request, data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
-            return redirect('redirect_dashboard')  # Redirect based on role
+            return redirect('redirect_dashboard')
     else:
         form = CustomLoginForm()
     return render(request, 'users/login.html', {'form': form})
