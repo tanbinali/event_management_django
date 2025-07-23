@@ -5,9 +5,9 @@
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-semibold text-gray-800">
-           Filtered Events
+            Filtered Events
         </h1>
-        <a href="{% url 'event_list' %}" class="text-blue-600 hover:underline">← Back to all events</a>
+        <a href="{% url 'event_list' %}" class="text-yellow-600 hover:underline">← Back to all events</a>
     </div>
 
     <div class="bg-gray-50 p-4 rounded-lg shadow-sm mb-8 sticky top-4 z-10">
@@ -26,7 +26,7 @@
                        min="{{ start_date|default:'' }}"
                        class="border border-gray-300 rounded px-3 py-2 w-full">
             </div>
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full md:w-auto">
+            <button type="submit" class="bg-yellow-600 text-white px-6 py-2 rounded hover:bg-yellow-700 w-full md:w-auto transition">
                 Apply Filter
             </button>
         </form>
@@ -35,7 +35,9 @@
     {% if events %}
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for event in events %}
-        <div class="bg-white p-5 rounded-xl shadow border border-gray-200 hover:shadow-md transition-shadow">
+        <a href="{% url 'event_detail' event.pk %}" 
+           class="block bg-white p-5 rounded-xl shadow border border-gray-200 hover:shadow-lg hover:border-yellow-500 transition duration-300 group">
+           
             {% if event.image %}
                 <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full h-48 object-cover rounded-md mb-4">
             {% else %}
@@ -45,47 +47,31 @@
             {% endif %}
 
             <div class="flex justify-between items-start mb-2">
-                <h2 class="text-xl font-bold text-gray-800">{{ event.name }}</h2>
+                <h2 class="text-xl font-bold text-gray-800 group-hover:text-yellow-600">{{ event.name }}</h2>
                 {% if event.date == today %}
                     <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Today</span>
                 {% elif event.date < today %}
                     <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">Past</span>
                 {% else %}
-                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Upcoming</span>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Upcoming</span>
                 {% endif %}
             </div>
+
             <p class="text-sm text-gray-500 mb-1">
-                <i class="far fa-calendar-alt mr-1"></i>
-                {{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }}
+                📅 {{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }}
             </p>
             <p class="text-gray-700 mb-2">
-                <i class="far fa-map-marker-alt mr-1"></i>
-                {{ event.location }}
+                📍 {{ event.location }}
             </p>
-            <p class="text-sm italic text-gray-600 mb-3">
-                <i class="far fa-tag mr-1"></i>
-                Category: {{ event.category.name }}
+            <p class="text-sm italic text-gray-600">
+                🏷️ Category: {{ event.category.name }}
             </p>
-            <div class="flex flex-wrap gap-3">
-                <a href="{% url 'event_detail' event.pk %}" 
-                   class="text-blue-600 hover:underline flex items-center">
-                    <i class="far fa-eye mr-1"></i> View
-                </a>
-                <a href="{% url 'event_update' event.pk %}" 
-                   class="text-yellow-600 hover:underline flex items-center">
-                    <i class="far fa-edit mr-1"></i> Edit
-                </a>
-                <a href="{% url 'event_delete' event.pk %}" 
-                   class="text-red-600 hover:underline flex items-center">
-                    <i class="far fa-trash-alt mr-1"></i> Delete
-                </a>
-            </div>
-        </div>
+        </a>
         {% endfor %}
     </div>
     {% else %}
     <div class="bg-white p-8 rounded-xl shadow-sm text-center">
-        <i class="far fa-calendar-times text-4xl text-gray-400 mb-4"></i>
+        <div class="text-4xl text-gray-400 mb-4">📭</div>
         <h3 class="text-xl font-medium text-gray-700 mb-2">No events found</h3>
         <p class="text-gray-500 mb-4">
             {% if start_date or end_date %}
@@ -94,7 +80,7 @@
                 There are currently no events available.
             {% endif %}
         </p>
-        <a href="{% url 'event_list' %}" class="text-blue-600 hover:underline">Browse all events</a>
+        <a href="{% url 'event_list' %}" class="text-yellow-600 hover:underline">Browse all events</a>
     </div>
     {% endif %}
 </div>

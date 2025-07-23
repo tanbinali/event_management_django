@@ -1,14 +1,20 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Q, Prefetch
-from django.contrib.auth.models import User, Group
+from django.db.models import Q
+from django.contrib.auth.models import Group
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from functools import wraps
 from datetime import date, datetime
-
+from django.views.generic import ListView, DetailView
+from django.utils.decorators import method_decorator
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 from .models import Event, Category, RSVP
 from .forms import EventForm, CategoryForm, UserForm
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # ---------- Home ----------
 def home_view(request):
@@ -40,73 +46,67 @@ def admin_or_organizer_required(view_func):
     return group_required(['Admin', 'Organizer'])(view_func)
 
 # ---------- Event Views ----------
-@login_required
-def event_list(request):
-    user = request.user
-    is_admin_or_organizer = (
-        user.is_superuser or
-        user.groups.filter(name__in=['Admin', 'Organizer']).exists()
-    )
-    is_participant = user.groups.filter(name='Participant').exists()
+class EventListView(ListView):
+    model = Event
+    template_name = 'events/event_list.html'
+    context_object_name = 'events'
 
-    events = Event.objects.all()
-    categories = Category.objects.all()
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
-    context = {
-        'events': events,
-        'categories': categories,
-        'is_admin_or_organizer': is_admin_or_organizer,
-        'is_participant': is_participant,
-    }
-    return render(request, 'events/event_list.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context['categories'] = Category.objects.all()
+        context['is_admin_or_organizer'] = user.is_superuser or user.groups.filter(name__in=['Admin', 'Organizer']).exists()
+        context['is_participant'] = user.groups.filter(name='Participant').exists()
+        return context
 
-@login_required
-def event_detail(request, pk):
-    event = get_object_or_404(
-    Event.objects.select_related('category').prefetch_related('participants'),
-    pk=pk
-)
-    user = request.user
-    is_admin_or_organizer = user.is_superuser or user.groups.filter(name__in=['Admin', 'Organizer']).exists()
+class EventDetailView(DetailView):
+    model = Event
+    template_name = 'events/event_detail.html'
+    context_object_name = 'event'
 
-    participants = []
-    for p in event.participants.all():
-        display_name = p.get_full_name() if p.get_full_name() else p.username
-        participants.append({
-            'name': display_name,
-            'email': p.email
-        })
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
-    return render(request, 'events/event_detail.html', {
-        'event': event,
-        'is_admin_or_organizer': is_admin_or_organizer,
-        'participants': participants
-    })
+    def get_queryset(self):
+        return Event.objects.select_related('category').prefetch_related('participants')
 
-@admin_or_organizer_required
-def event_create(request):
-    form = EventForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        form.save()
-        return redirect('event_list')
-    return render(request, 'events/event_form.html', {'form': form})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event = self.object
+        user = self.request.user
+        context['is_admin_or_organizer'] = user.is_superuser or user.groups.filter(name__in=['Admin', 'Organizer']).exists()
+        context['participants'] = [
+            {
+                'name': p.get_full_name() if p.get_full_name() else p.username,
+                'email': p.email
+            } for p in event.participants.all()
+        ]
+        return context
 
-@admin_or_organizer_required
-def event_update(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    form = EventForm(request.POST or None, request.FILES or None, instance=event)
-    if form.is_valid():
-        form.save()
-        return redirect('event_list')
-    return render(request, 'events/event_form.html', {'form': form})
+@method_decorator(admin_or_organizer_required, name='dispatch')
+class EventCreateView(CreateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'events/event_form.html'
+    success_url = reverse_lazy('event_list')
 
-@admin_or_organizer_required
-def event_delete(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    if request.method == 'POST':
-        event.delete()
-        return redirect('event_list')
-    return render(request, 'events/event_confirm_delete.html', {'event': event})
+@method_decorator(admin_or_organizer_required, name='dispatch')
+class EventUpdateView(UpdateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'events/event_form.html'
+    success_url = reverse_lazy('event_list')
+
+@method_decorator(admin_or_organizer_required, name='dispatch')
+class EventDeleteView(DeleteView):
+    model = Event
+    template_name = 'events/event_confirm_delete.html'
+    success_url = reverse_lazy('event_list')
 
 @admin_or_organizer_required
 def event_manage(request):
@@ -208,14 +208,13 @@ def dashboard_view(request):
     return render(request, 'events/dashboard.html', context)
 
 # ---------- Category Views ----------
-@admin_or_organizer_required
-def category_create(request):
-    form = CategoryForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        return redirect('event_list')
-    return render(request, 'events/category_form.html', {'form': form})
-
+@method_decorator(admin_or_organizer_required, name='dispatch')
+class CategoryCreateView(CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'events/category_form.html'
+    success_url = reverse_lazy('event_list')
+    
 @admin_or_organizer_required
 def category_manage(request):
     categories = Category.objects.all()
@@ -239,10 +238,14 @@ def category_delete(request, pk):
     return render(request, 'events/category_confirm_delete.html', {'category': category})
 
 # ---------- User Views ----------
-@admin_required
-def user_manage(request):
-    users = User.objects.all().prefetch_related('groups')
-    return render(request, 'events/user_manage.html', {'users': users})
+@method_decorator(admin_required, name='dispatch')
+class UserListView(ListView):
+    model = User
+    template_name = 'events/user_manage.html'
+    context_object_name = 'users'
+
+    def get_queryset(self):
+        return User.objects.prefetch_related('groups').all()
 
 @admin_required
 def user_create(request):

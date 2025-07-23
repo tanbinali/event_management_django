@@ -18,7 +18,13 @@
 {% if is_admin or is_organizer %}
 <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
   <div class="space-y-3">
-    <h2 class="text-lg font-semibold text-gray-800">Event</h2>
+    <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+      <!-- Calendar Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      Event
+    </h2>
     <div class="flex items-center gap-3 flex-wrap">
       <a href="{% url 'event_create' %}" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center">
         <span class="mr-1">+</span> Add
@@ -31,7 +37,13 @@
 
   {% if is_admin %}
   <div class="space-y-3">
-    <h2 class="text-lg font-semibold text-gray-800">Users</h2>
+    <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+      <!-- Users Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M12 12a4 4 0 100-8 4 4 0 000 8z" />
+      </svg>
+      Users
+    </h2>
     <div class="flex items-center gap-3 flex-wrap">
       <a href="{% url 'user_create' %}" class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 flex items-center">
         <span class="mr-1">+</span> Add
@@ -44,7 +56,13 @@
   {% endif %}
 
   <div class="space-y-3">
-    <h2 class="text-lg font-semibold text-gray-800">Category</h2>
+    <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+      <!-- Tag Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7a4 4 0 010-5.66m0 0a4 4 0 015.66 0M7 7v14a2 2 0 002 2h6a2 2 0 002-2V7M7 7h10" />
+      </svg>
+      Category
+    </h2>
     <div class="flex items-center gap-3 flex-wrap">
       <a href="{% url 'category_create' %}" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 flex items-center">
         <span class="mr-1">+</span> Add
@@ -60,28 +78,48 @@
 
 {% if is_admin or is_organizer %}
 <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
-  <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="total">
+  <div role="button" tabindex="0" aria-pressed="true" class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 flex flex-col items-center gap-1" data-target="total">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
     <p class="text-sm text-gray-500">Total Events</p>
     <p class="text-xl font-bold">{{ total_events }}</p>
   </div>
-  <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="upcoming">
+  <div role="button" tabindex="0" class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 flex flex-col items-center gap-1" data-target="upcoming">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
     <p class="text-sm text-gray-500">Upcoming</p>
     <p class="text-xl font-bold">{{ upcoming }}</p>
   </div>
-  <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="past">
+  <div role="button" tabindex="0" class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex flex-col items-center gap-1" data-target="past">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+    </svg>
     <p class="text-sm text-gray-500">Past</p>
     <p class="text-xl font-bold">{{ past }}</p>
   </div>
   {% if is_admin %}
-  <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="users">
+  <div role="button" tabindex="0" class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 flex flex-col items-center gap-1" data-target="users">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M12 12a4 4 0 100-8 4 4 0 000 8z" />
+    </svg>
     <p class="text-sm text-gray-500">Users</p>
     <p class="text-xl font-bold">{{ users|length }}</p>
   </div>
-  <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="organizers">
+  <div role="button" tabindex="0" class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-600 flex flex-col items-center gap-1" data-target="organizers">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A4 4 0 1118.88 6.197a4 4 0 11-13.757 11.607z" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
     <p class="text-sm text-gray-500">Organizers</p>
     <p class="text-xl font-bold">{{ organizers|length }}</p>
   </div>
-  <div class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100" data-target="participants">
+  <div role="button" tabindex="0" class="bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-700 flex flex-col items-center gap-1" data-target="participants">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M7 7a4 4 0 018 0v1a4 4 0 01-8 0V7zM12 14a7 7 0 017 7H5a7 7 0 017-7z" />
+    </svg>
     <p class="text-sm text-gray-500">Participants</p>
     <p class="text-xl font-bold">{{ participants|length }}</p>
   </div>

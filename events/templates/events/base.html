@@ -2,114 +2,139 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>{% block title %}Event Management{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 flex flex-col min-h-full">
-    
-   <nav class="bg-green-700 text-white shadow relative z-50">
-    <div class="container mx-auto px-6 py-4 flex items-center justify-between relative">
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
-        <div class="z-50">
-        <a href="{% url 'home' %}" class="hover:opacity-80 transition">
+<!-- ✅ Navigation -->
+<nav class="bg-green-700 text-white shadow-lg fixed w-full z-50">
+    <div class="container mx-auto px-6 py-3 flex items-center justify-between">
+        
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="hover:opacity-90 transition">
             <img src="{% static 'images/logo.png' %}" alt="Event Manager Logo" class="h-14 w-auto" />
         </a>
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-center space-x-6 font-medium">
+            <a href="{% url 'event_list' %}" class="hover:bg-green-800 px-3 py-2 rounded transition">Events</a>
+            <a href="{% url 'redirect_dashboard' %}" class="hover:bg-green-800 px-3 py-2 rounded transition">Dashboard</a>
+
+            <!-- ✅ Fixed Search -->
+            <form method="get" action="{% url 'event_search' %}" class="relative">
+                <input type="text" name="search" placeholder="Search events..."
+                       class="pl-10 pr-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                       style="width: 200px;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </form>
         </div>
 
-        <div class="hidden md:flex space-x-6 z-40 relative">
-        <a href="{% url 'event_list' %}" class="hover:text-yellow-300 transition">Events</a>
-        <a href="{% url 'redirect_dashboard' %}" class="hover:text-yellow-300 transition">Dashboard</a>
-        <a href="/search/" class="hover:text-yellow-300 transition">Search</a>
-        </div>
-
-        <div class="hidden md:flex items-center text-sm space-x-4 relative z-50">
-        {% if user.is_authenticated %}
-        <div class="relative">
-            <button id="userDropdownButton" class="focus:outline-none flex items-center gap-2 hover:text-yellow-300 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4 h-4 text-white hover:text-yellow-300 transition" fill="currentColor" >
-                <path d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464l349.5 0c-8.9-63.3-63.3-112-129-112l-91.4 0c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3z"/>
-            </svg>
-            {{ user.first_name|default:user.username }}
-            </button>
-            <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg hidden z-50">
-            <div class="px-4 py-2 border-b">{{ user.email }}</div>
-            <a href="{% url 'logout' %}" class="block px-4 py-2 hover:bg-gray-100 text-red-600">Logout</a>
+        <!-- Profile / Auth -->
+        <div class="hidden md:flex items-center gap-4">
+            {% if user.is_authenticated %}
+            <div class="relative">
+                <button id="userDropdownButton" class="flex items-center gap-2 hover:text-yellow-300 transition">
+                    <img src="{{ user.profile_picture.url|default:'/static/images/default-profile.jpg' }}" alt="Profile"
+                         class="w-9 h-9 rounded-full object-cover border-2 border-white" />
+                    {{ user.first_name|default:user.username }}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="userDropdown" class="absolute right-0 mt-2 w-52 bg-white text-gray-700 rounded-lg shadow-lg hidden">
+                    <div class="px-4 py-3 border-b text-sm">
+                        <p class="font-semibold">{{ user.first_name }} {{ user.last_name }}</p>
+                        <p class="text-xs text-gray-500">{{ user.email }}</p>
+                    </div>
+                    <a href="{% url 'profile' %}" class="block px-4 py-2 hover:bg-gray-100 text-sm">Profile</a>
+                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-red-600 hover:bg-red-50 text-sm">Logout</a>
+                </div>
             </div>
-        </div>
-        {% else %}
-        <a href="{% url 'login' %}" class="text-white hover:text-yellow-300 transition">Login</a>
-        <a href="{% url 'signup' %}" class="text-white hover:text-yellow-300 transition">Sign Up</a>
-        {% endif %}
+            {% else %}
+            <a href="{% url 'login' %}" class="hover:text-yellow-300 transition">Login</a>
+            <a href="{% url 'signup' %}" class="hover:text-yellow-300 transition">Sign Up</a>
+            {% endif %}
         </div>
 
-        <div class="md:hidden z-50">
-        <button id="mobile-menu-button" class="focus:outline-none text-2xl">
-            ☰
-        </button>
-        </div>
+        <!-- Mobile Menu -->
+        <button id="mobile-menu-button" class="md:hidden text-3xl focus:outline-none">☰</button>
     </div>
 
-    <div id="mobile-nav" class="md:hidden hidden px-6 pb-4 z-40">
+    <!-- Mobile Nav -->
+    <div id="mobile-nav" class="hidden md:hidden bg-green-700 px-6 pb-4">
         <a href="{% url 'event_list' %}" class="block py-2 hover:text-yellow-300">Events</a>
         <a href="{% url 'redirect_dashboard' %}" class="block py-2 hover:text-yellow-300">Dashboard</a>
-        <a href="/search/" class="flex py-2 hover:text-yellow-300 items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="16" height="16" fill="currentColor">
-            <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/>
-        </svg>
-        Search
-        </a>
+
+        <!-- ✅ Mobile Search -->
+        <form method="get" action="{% url 'event_search' %}" class="mt-3">
+            <input type="text" name="search" placeholder="Search events..."
+                   class="w-full px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300">
+        </form>
+
+        <hr class="my-2 border-green-600">
         {% if user.is_authenticated %}
-        <hr class="my-2 border-gray-400">
-        <p class="py-2">{{ user.username}}</p>
+        <div class="flex items-center gap-3 py-2">
+            <img src="{{ user.profile_picture.url|default:'/static/images/default-profile.jpg' }}" class="w-7 h-7 rounded-full" alt="Profile"/>
+            <span>{{ user.username }}</span>
+        </div>
+        <a href="{% url 'profile' %}" class="block py-2 hover:text-yellow-300">Profile</a>
         <a href="{% url 'logout' %}" class="block py-2 text-red-300 hover:text-red-500">Logout</a>
         {% else %}
         <a href="{% url 'login' %}" class="block py-2 hover:text-yellow-300">Login</a>
         <a href="{% url 'signup' %}" class="block py-2 hover:text-yellow-300">Sign Up</a>
         {% endif %}
     </div>
-    </nav>
+</nav>
 
+<!-- Main -->
+<main class="flex-grow container mx-auto py-28 px-4">
+    {% block content %}{% endblock %}
+</main>
 
-    <main class="flex-grow container mx-auto py-6 px-4">
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer class="bg-green-700 text-white">
-        <div class="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
-            <div class="mb-2 md:mb-0 font-semibold">
-                &copy;Event Manager (2025). All rights reserved.
-            </div>
-            <div>
-                Built by <a href="https://tanbinali.github.io/WebDev_assignment1_phitron/project.html" target="_blank" class="font-bold hover:text-yellow-300 transition">MD. Tanbin Ali</a> using Django and Tailwind CSS.
-            </div>
+<!-- ✅ Footer -->
+<footer class="bg-green-700 text-white mt-10">
+    <div class="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
+        <div class="mb-2 md:mb-0 font-semibold">
+            &copy; Event Manager {{ now|date:"Y" }}. All rights reserved.
         </div>
-    </footer>
+        <div class="flex items-center gap-4">
+            Built by 
+            <a href="https://tanbinali.github.io/WebDev_assignment1_phitron/project.html" target="_blank"
+                class="font-bold hover:text-yellow-300 transition">MD. Tanbin Ali</a>
+            <!-- ✅ GitHub Icon -->
+            <a href="https://github.com/tanbinali" target="_blank" class="hover:text-yellow-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0C5.37 0 0 5.373 0 12a12 12 0 008.207 11.43c.6.113.793-.26.793-.577v-2.256c-3.34.73-4.043-1.61-4.043-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.744.083-.729.083-.729 1.205.085 1.84 1.238 1.84 1.238 1.07 1.833 2.81 1.303 3.494.997.108-.776.417-1.304.76-1.604-2.667-.3-5.467-1.336-5.467-5.942 0-1.312.467-2.386 1.236-3.23-.124-.303-.536-1.522.117-3.176 0 0 1.008-.323 3.3 1.23a11.47 11.47 0 013.003-.403c1.02.004 2.047.138 3.003.403 2.292-1.553 3.297-1.23 3.297-1.23.655 1.654.243 2.873.12 3.176.77.844 1.236 1.918 1.236 3.23 0 4.617-2.803 5.638-5.475 5.933.43.372.814 1.104.814 2.223v3.293c0 .32.19.694.8.576A12.004 12.004 0 0024 12c0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</footer>
 
-   <script>
-  document.getElementById('mobile-menu-button').addEventListener('click', function () {
-    const nav = document.getElementById('mobile-nav');
-    nav.classList.toggle('hidden');
-  });
-  const dropdownBtn = document.getElementById('userDropdownButton');
-  const dropdown = document.getElementById('userDropdown');
-
-  if (dropdownBtn) {
-    dropdownBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      dropdown.classList.toggle('hidden');
+<!-- JS -->
+<script>
+    document.getElementById('mobile-menu-button').addEventListener('click', function () {
+        document.getElementById('mobile-nav').classList.toggle('hidden');
     });
 
-    document.addEventListener('click', function (e) {
-      if (!dropdown.contains(e.target) && !dropdownBtn.contains(e.target)) {
-        dropdown.classList.add('hidden');
-      }
-    });
-
-    dropdown.addEventListener('click', function (e) {
-      e.stopPropagation();
-    });
-  }
+    const dropdownBtn = document.getElementById('userDropdownButton');
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdownBtn) {
+        dropdownBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+        document.addEventListener('click', function (e) {
+            if (!dropdown.contains(e.target) && !dropdownBtn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    }
 </script>
 
 </body>

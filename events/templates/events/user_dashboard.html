@@ -8,20 +8,21 @@
   {% if rsvped_events %}
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {% for event in rsvped_events %}
-        <a href="{% url 'event_detail' event.id %}" class="block bg-white rounded-xl shadow hover:shadow-lg hover:bg-gray-50 transition duration-150 overflow-hidden border">
+        <a href="{% url 'event_detail' event.id %}" 
+           class="block bg-white rounded-xl shadow border border-gray-200 hover:shadow-lg hover:bg-gray-50 transition duration-300 overflow-hidden transform hover:-translate-y-1">
           {% if event.image %}
-            <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full h-48 object-cover">
+            <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full h-48 object-cover transition-transform duration-300 hover:scale-105">
           {% else %}
-            <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
-              No Image
+            <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm italic">
+              No Image Available
             </div>
           {% endif %}
 
           <div class="p-4">
-            <h2 class="text-lg font-bold text-gray-800">{{ event.name }}</h2>
-            <p class="text-sm text-gray-600">{{ event.date }} @ {{ event.time }}</p>
-            <p class="text-sm text-gray-600">{{ event.location }}</p>
-            <p class="text-sm mt-2 text-gray-500">Category: {{ event.category.name }}</p>
+            <h2 class="text-lg font-bold text-gray-800 truncate" title="{{ event.name }}">{{ event.name }}</h2>
+            <p class="text-sm text-gray-600">{{ event.date|date:"M d, Y" }} @ {{ event.time|time:"g:i A" }}</p>
+            <p class="text-sm text-gray-600 truncate" title="{{ event.location }}">{{ event.location }}</p>
+            <p class="text-sm mt-2 text-gray-500 italic">Category: {{ event.category.name }}</p>
           </div>
         </a>
       {% endfor %}

@@ -6,6 +6,7 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -33,6 +34,8 @@ INSTALLED_APPS = [
     'events',
     'debug_toolbar',
     'users',
+    'widget_tweaks',
+
 ]
 SITE_ID = int(config("SITE_ID", default=1))
 

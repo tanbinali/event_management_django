@@ -1,7 +1,54 @@
-Hi {{ user.username }},
-
-Thanks for signing up! Please click the link below to activate your account:
-
-{{ activation_link }}
-
-If you didn’t request this, ignore this email.
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <title>Activate Your Account</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 2rem auto;
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 2rem;
+      color: #111827;
+    }
+    a.button {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #22c55e;
+      color: #fff !important;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    a.button:hover {
+      background-color: #16a34a;
+    }
+    p {
+      line-height: 1.6;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p>Hi {{ user.username }},</p>
+    
+    <p>Thanks for signing up! Please click the link below to activate your account:</p>
+    
+    <p><a href="{{ activation_link }}" class="button" target="_blank" rel="noopener noreferrer">Activate Account</a></p>
+    
+    <p>If you didn’t request this, you can safely ignore this email.</p>
+    
+    <p>Best regards,<br/>The Event Manager Team</p>
+  </div>
+</body>
+</html>

@@ -31,7 +31,14 @@
     </form>
   </div>
 
-  <p class="mt-4 text-center">
-    Don't have an account? <a href="{% url 'signup' %}" class="text-green-600 hover:underline">Sign up</a>
-  </p>
+<p class="mt-4 text-center">
+  Don't have an account? <a href="{% url 'signup' %}" class="text-green-600 hover:underline">Sign up</a>
+</p>
+
+<p class="mt-4 text-center">
+  <a href="{% url 'reset_password' %}" class=" italic hover:underline">
+    Forgot your password?
+  </a>
+</p>
+
 {% endblock %}
