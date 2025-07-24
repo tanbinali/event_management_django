@@ -18,6 +18,12 @@
       border-radius: 8px;
       padding: 2rem;
       color: #111827;
+      text-align: center;
+    }
+    .header-icon {
+      font-size: 24px;
+      color: #22c55e;
+      margin-bottom: 1rem;
     }
     a.button {
       display: inline-block;
@@ -28,6 +34,7 @@
       text-decoration: none;
       border-radius: 6px;
       font-weight: bold;
+      transition: background-color 0.3s ease;
     }
     a.button:hover {
       background-color: #16a34a;
@@ -39,7 +46,8 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" role="main">
+
     <p>Hi {{ user.username }},</p>
     
     <p>Thanks for signing up! Please click the link below to activate your account:</p>

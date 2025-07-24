@@ -80,13 +80,9 @@ class EventDetailView(DetailView):
         event = self.object
         user = self.request.user
         context['is_admin_or_organizer'] = user.is_superuser or user.groups.filter(name__in=['Admin', 'Organizer']).exists()
-        context['participants'] = [
-            {
-                'name': p.get_full_name() if p.get_full_name() else p.username,
-                'email': p.email
-            } for p in event.participants.all()
-        ]
+        context['participants'] = event.participants.all()
         return context
+
 
 @method_decorator(admin_or_organizer_required, name='dispatch')
 class EventCreateView(CreateView):

@@ -19,12 +19,32 @@
 
       {% for field in form %}
         <div>
-          <label for="{{ field.id_for_label }}" class="block text-base font-semibold text-gray-700 mb-1">
-            {{ field.label }}
-            {% if field.field.required %}
-              <span class="text-red-500">*</span>
+          {% if field.name == "image" %}
+            {% if form.instance.image %}
+              <!-- ✅ Current Event Image -->
+              <label class="block text-base font-semibold text-gray-700 mb-2">Current Event Banner:</label>
+              <div class="mb-4">
+                <img src="{{ form.instance.image.url }}" alt="Event Image"
+                     class="w-full max-h-64 object-cover rounded-lg border border-gray-300 shadow-sm">
+              </div>
+              <!-- ✅ Change Event Image -->
+              <label for="{{ field.id_for_label }}" class="block text-base font-semibold text-gray-700 mb-2">
+                Change Event Banner:
+              </label>
+            {% else %}
+              <label for="{{ field.id_for_label }}" class="block text-base font-semibold text-gray-700 mb-2">
+                Upload Event Banner:
+              </label>
             {% endif %}
-          </label>
+          {% else %}
+            <!-- ✅ Normal Fields -->
+            <label for="{{ field.id_for_label }}" class="block text-base font-semibold text-gray-700 mb-2">
+              {{ field.label }}
+              {% if field.field.required %}
+                <span class="text-red-500">*</span>
+              {% endif %}
+            </label>
+          {% endif %}
 
           {{ field }}
 
@@ -34,6 +54,7 @@
         </div>
       {% endfor %}
 
+      <!-- ✅ Buttons -->
       <div class="flex justify-between items-center pt-4">
         <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
           {% if form.instance.pk %}

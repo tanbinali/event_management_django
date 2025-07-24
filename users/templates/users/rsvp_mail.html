@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <title>RSVP Confirmation</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 0;
+      color: #1f2937;
+    }
+    .container {
+      max-width: 600px;
+      margin: 3rem auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem 3rem;
+      border: 1px solid #e5e7eb;
+    }
+    .header-icon {
+      font-size: 48px;
+      color: #3b82f6; /* blue */
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-weight: 700;
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      line-height: 1.6;
+      font-size: 1rem;
+      margin-top: 1rem;
+    }
+    .event-name {
+      font-weight: 600;
+      color: #2563eb;
+      font-size: 1.25rem;
+      margin: 0.5rem 0 1rem 0;
+    }
+    .button {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.75rem 1.75rem;
+      background-color: #3b82f6;
+      color: #ffffff !important;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+      transition: background-color 0.3s ease;
+    }
+    .button:hover {
+      background-color: #2563eb;
+    }
+    .footer {
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <div style="text-align: center;">
+      <h1>RSVP Confirmation</h1>
+    </div>
+
+    <p>Hi <strong>{{ user.first_name|default:user.username }}</strong>,</p>
+    
+    <p>You have successfully RSVPed to the event:</p>
+    
+    <p class="event-name">"{{ event.name }}"</p>
+    
+    <p>Scheduled on <strong>{{ event.date|date:"F j, Y" }}</strong> at <strong>{{ event.time|time:"g:i A" }}</strong>.</p>
+    
+    <p>We look forward to your participation!</p>
+    
+    <div class="footer">
+      <p>Best regards,</p>
+      <p><strong>The Event Manager Team</strong></p>
+    </div>
+  </div>
+</body>
+</html>

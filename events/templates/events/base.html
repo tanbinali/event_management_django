@@ -72,7 +72,7 @@
         {% if user.is_authenticated %}
         <div class="flex items-center gap-3 py-2">
             <img src="{{ user.profile_picture.url|default:'/static/images/default-profile.jpg' }}" class="w-7 h-7 rounded-full" alt="Profile"/>
-            <span>{{ user.username }}</span>
+            <span>{{ user.first_name }} {{ user.last_name }}</span>
         </div>
         <a href="{% url 'profile' %}" class="block py-2 hover:text-yellow-300">Profile</a>
         <a href="{% url 'logout' %}" class="block py-2 text-red-300 hover:text-red-500">Logout</a>

@@ -1,6 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import CustomUser
+from django.forms.widgets import FileInput
+
+
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -31,6 +34,12 @@ class SignUpForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if CustomUser.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already registered.")
+        return email
+
 
 class CustomLoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
@@ -45,7 +54,7 @@ class CustomLoginForm(AuthenticationForm):
         for field in self.fields.values():
             field.widget.attrs.update({'class': tailwind_input_classes})
             field.help_text = None
-            
+
 class CustomUserChangeForm(forms.ModelForm):
     class Meta:
         model = CustomUser
@@ -60,8 +69,10 @@ class CustomUserChangeForm(forms.ModelForm):
         )
 
         for name, field in self.fields.items():
-            field.widget.attrs.update({'class': tailwind_input_classes})
-            if name != 'profile_picture':
+            if name == 'profile_picture':
+                field.widget = FileInput(attrs={'class': tailwind_input_classes})
+            else:
+                field.widget.attrs.update({'class': tailwind_input_classes})
                 field.widget.attrs.update({'placeholder': field.label})
 
             field.help_text = None

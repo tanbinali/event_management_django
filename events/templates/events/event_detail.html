@@ -5,7 +5,7 @@
 <div class="bg-white p-6 rounded-xl shadow-lg max-w-xl mx-auto">
 
   {% if event.image %}
-  <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full max-h-56 object-cover rounded-lg mb-6 border border-green-600">
+    <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full max-h-56 object-cover rounded-lg mb-6 border border-green-600">
   {% endif %}
 
   <h1 class="text-2xl font-bold mb-2 text-green-700">{{ event.name }}</h1>
@@ -17,16 +17,28 @@
   <hr class="my-6 border-green-300">
 
   <h2 class="text-sm font-semibold mb-3 text-green-600">Participants:</h2>
-  <ul class="list-disc ml-5 text-gray-700 text-sm max-h-40 overflow-auto mb-6">
+  <ol class="list-decimal ml-5 text-gray-700 text-sm max-h-40 overflow-auto mb-6 space-y-1">
     {% for participant in participants %}
-      <li>{{ participant.name }} ({{ participant.email }})</li>
+      <li>
+        <button 
+          class="participant-btn text-green-600 hover:underline focus:outline-none"
+          data-name="{{ participant.first_name|default:participant.username|escapejs }}"
+          data-username="{{ participant.username|escapejs }}"
+          data-email="{{ participant.email|escapejs }}"
+          data-phone="{{ participant.phone|default:'N/A'|escapejs }}"
+          data-bio="{{ participant.bio|default:'No bio available'|escapejs }}"
+          data-profile-picture="{% if participant.profile_picture %}{{ participant.profile_picture.url }}{% else %}/static/profile_images/default.jpg{% endif %}"
+          type="button"
+        >
+          {{ participant.first_name|default:participant.username }}
+        </button>
+      </li>
     {% empty %}
       <li>No participants yet.</li>
     {% endfor %}
-  </ul>
+  </ol>
 
   <div class="flex flex-wrap gap-3 text-sm">
-
     {% if user.is_authenticated %}
       {% if not is_admin_or_organizer %}
         {% if user in event.participants.all %}
@@ -74,7 +86,74 @@
     <a href="{% url 'event_list' %}" class="px-4 py-1 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition">
       Back
     </a>
-
   </div>
 </div>
+
+<div id="participant-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-96 relative">
+    <button id="modal-close" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" aria-label="Close modal">
+      ✕
+    </button>
+
+    <div class="flex items-center mb-4">
+      <img id="modal-profile-picture" src="" alt="Profile Picture" class="w-16 h-16 rounded-full border-2 border-green-500 mr-4">
+      <div>
+        <h3 id="modal-name" class="text-lg font-semibold text-green-700"></h3>
+        <p class="text-sm text-gray-500">@<span id="modal-username"></span></p>
+      </div>
+    </div>
+
+    <p class="text-gray-700 mb-2"><strong>Email:</strong> <span id="modal-email"></span></p>
+    <p class="text-gray-700 mb-2"><strong>Phone:</strong> <span id="modal-phone"></span></p>
+    <p class="text-gray-700"><strong>Bio:</strong> <span id="modal-bio"></span></p>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('participant-modal');
+    const closeBtn = document.getElementById('modal-close');
+    const modalName = document.getElementById('modal-name');
+    const modalUsername = document.getElementById('modal-username');
+    const modalEmail = document.getElementById('modal-email');
+    const modalPhone = document.getElementById('modal-phone');
+    const modalBio = document.getElementById('modal-bio');
+    const modalProfilePicture = document.getElementById('modal-profile-picture');
+
+    function openModal(data) {
+      modalName.textContent = data.name;
+      modalUsername.textContent = data.username;
+      modalEmail.textContent = data.email;
+      modalPhone.textContent = data.phone;
+      modalBio.textContent = data.bio;
+      modalProfilePicture.src = data.profilePicture;
+      modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.querySelectorAll('.participant-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        openModal({
+          name: button.getAttribute('data-name'),
+          username: button.getAttribute('data-username'),
+          email: button.getAttribute('data-email'),
+          phone: button.getAttribute('data-phone'),
+          bio: button.getAttribute('data-bio'),
+          profilePicture: button.getAttribute('data-profile-picture'),
+        });
+      });
+    });
+  });
+</script>
+
 {% endblock %}
