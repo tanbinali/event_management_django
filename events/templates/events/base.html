@@ -1,130 +1,240 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" class="h-full">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Event Management{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
-
-<nav class="bg-green-700 text-white shadow-lg fixed w-full z-50">
-    <div class="container mx-auto px-6 py-3 flex items-center justify-between">
-        
+  </head>
+  <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+    <nav class="bg-green-700 text-white shadow-lg fixed w-full z-50">
+      <div
+        class="container mx-auto px-6 py-3 flex items-center justify-between"
+      >
         <a href="{% url 'home' %}" class="hover:opacity-90 transition">
-            <img src="{% static 'images/logo.png' %}" alt="Event Manager Logo" class="h-14 w-auto" />
+          <img
+            src="{% static 'images/logo.png' %}"
+            alt="Event Manager Logo"
+            class="h-14 w-auto"
+          />
         </a>
 
         <div class="hidden md:flex items-center space-x-6 font-medium">
-            <a href="{% url 'event_list' %}" class="hover:bg-green-800 px-3 py-2 rounded transition">Events</a>
-            <a href="{% url 'redirect_dashboard' %}" class="hover:bg-green-800 px-3 py-2 rounded transition">Dashboard</a>
+          <a
+            href="{% url 'event_list' %}"
+            class="hover:bg-green-800 px-3 py-2 rounded transition"
+            >Events</a
+          >
+          <a
+            href="{% url 'redirect_dashboard' %}"
+            class="hover:bg-green-800 px-3 py-2 rounded transition"
+            >Dashboard</a
+          >
 
-            <form method="get" action="{% url 'event_search' %}" class="relative">
-                <input type="text" name="search" placeholder="Search events..."
-                       class="pl-10 pr-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                       style="width: 200px;">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-            </form>
+          <form method="get" action="{% url 'event_search' %}" class="relative">
+            <input
+              type="text"
+              name="search"
+              placeholder="Search events..."
+              class="pl-10 pr-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+              style="width: 200px"
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 absolute left-3 top-2.5 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </form>
         </div>
 
         <div class="hidden md:flex items-center gap-4">
-            {% if user.is_authenticated %}
-            <div class="relative">
-                <button id="userDropdownButton" class="flex items-center gap-2 hover:text-yellow-300 transition">
-                    <img src="{{ user.profile_picture.url|default:'/static/images/default-profile.jpg' }}" alt="Profile"
-                         class="w-9 h-9 rounded-full object-cover border-2 border-white" />
-                    {{ user.first_name|default:user.username }}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <div id="userDropdown" class="absolute right-0 mt-2 w-52 bg-white text-gray-700 rounded-lg shadow-lg hidden">
-                    <div class="px-4 py-3 border-b text-sm">
-                        <p class="font-semibold">{{ user.first_name }} {{ user.last_name }}</p>
-                        <p class="text-xs text-gray-500">{{ user.email }}</p>
-                    </div>
-                    <a href="{% url 'profile' %}" class="block px-4 py-2 hover:bg-gray-100 text-sm">Profile</a>
-                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-red-600 hover:bg-red-50 text-sm">Logout</a>
-                </div>
+          {% if user.is_authenticated %}
+          <div class="relative">
+            <button
+              id="userDropdownButton"
+              class="flex items-center gap-2 hover:text-yellow-300 transition"
+            >
+              <img
+                src="{{ user.profile_picture.url|default:'/static/images/default-profile.jpg' }}"
+                alt="Profile"
+                class="w-9 h-9 rounded-full object-cover border-2 border-white"
+              />
+              {{ user.first_name|default:user.username }}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div
+              id="userDropdown"
+              class="absolute right-0 mt-2 w-52 bg-white text-gray-700 rounded-lg shadow-lg hidden"
+            >
+              <div class="px-4 py-3 border-b text-sm">
+                <p class="font-semibold">
+                  {{ user.first_name }} {{ user.last_name }}
+                </p>
+                <p class="text-xs text-gray-500">{{ user.email }}</p>
+              </div>
+              <a
+                href="{% url 'profile' %}"
+                class="block px-4 py-2 hover:bg-gray-100 text-sm"
+                >Profile</a
+              >
+              <a
+                href="{% url 'logout' %}"
+                class="block px-4 py-2 text-red-600 hover:bg-red-50 text-sm"
+                >Logout</a
+              >
             </div>
-            {% else %}
-            <a href="{% url 'login' %}" class="hover:text-yellow-300 transition">Login</a>
-            <a href="{% url 'signup' %}" class="hover:text-yellow-300 transition">Sign Up</a>
-            {% endif %}
+          </div>
+          {% else %}
+          <a href="{% url 'login' %}" class="hover:text-yellow-300 transition"
+            >Login</a
+          >
+          <a href="{% url 'signup' %}" class="hover:text-yellow-300 transition"
+            >Sign Up</a
+          >
+          {% endif %}
         </div>
 
-        <button id="mobile-menu-button" class="md:hidden text-3xl focus:outline-none">☰</button>
-    </div>
+        <button
+          id="mobile-menu-button"
+          class="md:hidden text-3xl focus:outline-none"
+        >
+          ☰
+        </button>
+      </div>
 
-    <div id="mobile-nav" class="hidden md:hidden bg-green-700 px-6 pb-4">
-        <a href="{% url 'event_list' %}" class="block py-2 hover:text-yellow-300">Events</a>
-        <a href="{% url 'redirect_dashboard' %}" class="block py-2 hover:text-yellow-300">Dashboard</a>
+      <div id="mobile-nav" class="hidden md:hidden bg-green-700 px-6 pb-4">
+        <a
+          href="{% url 'event_list' %}"
+          class="block py-2 hover:text-yellow-300"
+          >Events</a
+        >
+        <a
+          href="{% url 'redirect_dashboard' %}"
+          class="block py-2 hover:text-yellow-300"
+          >Dashboard</a
+        >
 
         <form method="get" action="{% url 'event_search' %}" class="mt-3">
-            <input type="text" name="search" placeholder="Search events..."
-                   class="w-full px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search events..."
+            class="w-full px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+          />
         </form>
 
-        <hr class="my-2 border-green-600">
+        <hr class="my-2 border-green-600" />
         {% if user.is_authenticated %}
         <div class="flex items-center gap-3 py-2">
-            <img src="{{ user.profile_picture.url|default:'/static/images/default-profile.jpg' }}" class="w-7 h-7 rounded-full" alt="Profile"/>
-            <span>{{ user.first_name }} {{ user.last_name }}</span>
+          <img
+            src="{{ user.profile_picture.url|default:'/static/images/default-profile.jpg' }}"
+            class="w-7 h-7 rounded-full"
+            alt="Profile"
+          />
+          <span>{{ user.first_name }} {{ user.last_name }}</span>
         </div>
-        <a href="{% url 'profile' %}" class="block py-2 hover:text-yellow-300">Profile</a>
-        <a href="{% url 'logout' %}" class="block py-2 text-red-300 hover:text-red-500">Logout</a>
+        <a href="{% url 'profile' %}" class="block py-2 hover:text-yellow-300"
+          >Profile</a
+        >
+        <a
+          href="{% url 'logout' %}"
+          class="block py-2 text-red-300 hover:text-red-500"
+          >Logout</a
+        >
         {% else %}
-        <a href="{% url 'login' %}" class="block py-2 hover:text-yellow-300">Login</a>
-        <a href="{% url 'signup' %}" class="block py-2 hover:text-yellow-300">Sign Up</a>
+        <a href="{% url 'login' %}" class="block py-2 hover:text-yellow-300"
+          >Login</a
+        >
+        <a href="{% url 'signup' %}" class="block py-2 hover:text-yellow-300"
+          >Sign Up</a
+        >
         {% endif %}
-    </div>
-</nav>
+      </div>
+    </nav>
 
-<main class="flex-grow container mx-auto py-28 px-4">
-    {% block content %}{% endblock %}
-</main>
+    <main class="flex-grow container mx-auto py-28 px-4">
+      {% block content %}{% endblock %}
+    </main>
 
-<footer class="bg-green-700 text-white mt-10">
-    <div class="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
+    <footer class="bg-green-700 text-white mt-10">
+      <div
+        class="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm"
+      >
         <div class="mb-2 md:mb-0 font-semibold">
-            &copy; Event Manager {{ now|date:"Y" }}. All rights reserved.
+          &copy; Event Manager {{ now|date:"Y" }}. All rights reserved.
         </div>
         <div class="flex items-center gap-4">
-            Built by 
-            <a href="https://tanbinali.github.io/WebDev_assignment1_phitron/project.html" target="_blank"
-                class="font-bold hover:text-yellow-300 transition">MD. Tanbin Ali</a>
-        
-            <a href="https://github.com/tanbinali" target="_blank" class="hover:text-yellow-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0C5.37 0 0 5.373 0 12a12 12 0 008.207 11.43c.6.113.793-.26.793-.577v-2.256c-3.34.73-4.043-1.61-4.043-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.744.083-.729.083-.729 1.205.085 1.84 1.238 1.84 1.238 1.07 1.833 2.81 1.303 3.494.997.108-.776.417-1.304.76-1.604-2.667-.3-5.467-1.336-5.467-5.942 0-1.312.467-2.386 1.236-3.23-.124-.303-.536-1.522.117-3.176 0 0 1.008-.323 3.3 1.23a11.47 11.47 0 013.003-.403c1.02.004 2.047.138 3.003.403 2.292-1.553 3.297-1.23 3.297-1.23.655 1.654.243 2.873.12 3.176.77.844 1.236 1.918 1.236 3.23 0 4.617-2.803 5.638-5.475 5.933.43.372.814 1.104.814 2.223v3.293c0 .32.19.694.8.576A12.004 12.004 0 0024 12c0-6.627-5.373-12-12-12z"/>
-                </svg>
-            </a>
+          Built by
+          <a
+            href="https://mdtanbinali-portfolio.vercel.app/"
+            target="_blank"
+            class="font-bold hover:text-yellow-300 transition"
+            >MD. Tanbin Ali</a
+          >
+
+          <a
+            href="https://github.com/tanbinali"
+            target="_blank"
+            class="hover:text-yellow-300"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0C5.37 0 0 5.373 0 12a12 12 0 008.207 11.43c.6.113.793-.26.793-.577v-2.256c-3.34.73-4.043-1.61-4.043-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.744.083-.729.083-.729 1.205.085 1.84 1.238 1.84 1.238 1.07 1.833 2.81 1.303 3.494.997.108-.776.417-1.304.76-1.604-2.667-.3-5.467-1.336-5.467-5.942 0-1.312.467-2.386 1.236-3.23-.124-.303-.536-1.522.117-3.176 0 0 1.008-.323 3.3 1.23a11.47 11.47 0 013.003-.403c1.02.004 2.047.138 3.003.403 2.292-1.553 3.297-1.23 3.297-1.23.655 1.654.243 2.873.12 3.176.77.844 1.236 1.918 1.236 3.23 0 4.617-2.803 5.638-5.475 5.933.43.372.814 1.104.814 2.223v3.293c0 .32.19.694.8.576A12.004 12.004 0 0024 12c0-6.627-5.373-12-12-12z"
+              />
+            </svg>
+          </a>
         </div>
-    </div>
-</footer>
+      </div>
+    </footer>
 
-<script>
-    document.getElementById('mobile-menu-button').addEventListener('click', function () {
-        document.getElementById('mobile-nav').classList.toggle('hidden');
-    });
-
-    const dropdownBtn = document.getElementById('userDropdownButton');
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdownBtn) {
-        dropdownBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            dropdown.classList.toggle('hidden');
+    <script>
+      document
+        .getElementById("mobile-menu-button")
+        .addEventListener("click", function () {
+          document.getElementById("mobile-nav").classList.toggle("hidden");
         });
-        document.addEventListener('click', function (e) {
-            if (!dropdown.contains(e.target) && !dropdownBtn.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-    }
-</script>
 
-</body>
+      const dropdownBtn = document.getElementById("userDropdownButton");
+      const dropdown = document.getElementById("userDropdown");
+      if (dropdownBtn) {
+        dropdownBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          dropdown.classList.toggle("hidden");
+        });
+        document.addEventListener("click", function (e) {
+          if (!dropdown.contains(e.target) && !dropdownBtn.contains(e.target)) {
+            dropdown.classList.add("hidden");
+          }
+        });
+      }
+    </script>
+  </body>
 </html>
